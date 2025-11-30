@@ -2,8 +2,6 @@
 
 A practical cheatsheet for video automation, clipping, and media processing pipelines.
 
-All commands are tested and runnable. Use with your favorite LLM for customization.
-
 ## Installation
 
 ```bash
