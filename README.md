@@ -2,7 +2,7 @@
 
 A practical cheatsheet for video automation, clipping, and media processing pipelines.
 
-Brought to you by [YTScribe a YouTube Transcription AI Studio](https://ytscribe.ai/)
+Sponsored by [YTScribe a YouTube Transcription AI Studio](https://ytscribe.ai/)
 
 ## Installation
 
