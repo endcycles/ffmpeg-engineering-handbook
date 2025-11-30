@@ -2,7 +2,7 @@
 
 A practical cheatsheet for video automation, clipping, and media processing pipelines.
 
-Sponsored by [YTScribe a YouTube Transcription AI Studio](https://ytscribe.ai/)
+Sponsored by [YTScribe a YouTube Transcription AI Studio](https://ytscribe.ai?utm_source=github&utm_medium=readme&utm_campaign=ffmpeg-engineering-handbook)
 
 ## Installation
 
