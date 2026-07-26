@@ -271,5 +271,5 @@ ffmpeg -i input.mp4 -c:v h264_nvenc -rc-lookahead 32 output.mp4
 
 ## Next Steps
 
-- [Bitrate Control](bitrate.md) - Rate control modes
-- [Web Optimization](web.md) - Streaming-ready output
+- [Codec Selection](codecs.md) - Rate-control and delivery tradeoffs
+- [Conversion](../operations/conversion.md) - Muxing and output validation

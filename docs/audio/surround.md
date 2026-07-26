@@ -214,17 +214,18 @@ ffmpeg -i input.wav \
   output.wav
 ```
 
-### Add Silent Channels
+### Map Quad to 5.1 with Silent Center and LFE
 
 ```bash
-# Add silent LFE to 4.0
+# `quad` means FL+FR+BL+BR; `4.0` means FL+FR+FC+BC
 ffmpeg -i quadraphonic.wav \
-  -filter_complex \
-    "[0:a]channelsplit=channel_layout=4.0[FL][FR][BL][BR]; \
-     anullsrc=cl=mono:r=48000[LFE]; \
-     [FL][FR][LFE][BL][BR]join=inputs=5:channel_layout=5.0[a]" \
-  -map "[a]" output_5.0.wav
+  -filter_complex "[0:a]aformat=channel_layouts=quad,pan=5.1|FL=FL|FR=FR|FC=0*FL|LFE=0*FL|BL=BL|BR=BR[a]" \
+  -map "[a]" output_5.1.wav
 ```
+
+The silent channels make the layout structurally valid; they do not create an
+artistic surround mix. Use `5.1(side)` instead when the target layout uses side
+surrounds.
 
 ## Analyze Channels
 

@@ -290,11 +290,15 @@ ffmpeg -i video.mkv -map 0:s:0 subs.srt
 # Delay subtitles by 2 seconds
 ffmpeg -itsoffset 2 -i subs.srt -c copy subs_delayed.srt
 
-# Using filter
-ffmpeg -i video.mp4 \
-  -vf "subtitles=subs.srt:charenc=UTF-8,setpts=PTS+2/TB" \
-  output.mp4
+# Soft-mux the delayed cues with the original video and audio
+ffmpeg -i video.mp4 -itsoffset 2 -i subs.srt \
+  -map 0:v:0 -map 0:a? -map 1:0 \
+  -c:v copy -c:a copy -c:s srt output.mkv
 ```
+
+Use a negative `-itsoffset` to advance cues. The old pattern of adding
+`setpts=PTS+2/TB` after the `subtitles` filter delayed the video frames, not the
+subtitle cues.
 
 ## Animated Text
 
@@ -356,4 +360,4 @@ ffmpeg -i video.mp4 \
 ## Next Steps
 
 - [Overlays](overlays.md) - Image and video overlays
-- [Complex Filters](complex-filters.md) - Multi-layer compositions
+- [Filters](../fundamentals/filters.md) - Multi-layer filter graphs

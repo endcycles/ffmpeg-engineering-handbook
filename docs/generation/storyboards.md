@@ -52,8 +52,8 @@ ffmpeg -i input.mp4 \
 ```bash
 ffmpeg -skip_frame nokey -i input.mp4 \
   -vf "scale=240:135,tile=5x4" \
-  -vsync vfr \
-  storyboard.jpg
+  -fps_mode vfr \
+  storyboard_%02d.jpg
 ```
 
 **Note**: Creates multiple images if more frames than tile size.
@@ -63,7 +63,7 @@ ffmpeg -skip_frame nokey -i input.mp4 \
 ```bash
 ffmpeg -skip_frame nokey -i input.mp4 \
   -vf "select='isnan(prev_selected_t)+gte(t-prev_selected_t,5)',scale=240:135,tile=5x4" \
-  -vsync vfr \
+  -fps_mode vfr \
   -frames:v 1 \
   storyboard.jpg
 ```
@@ -75,7 +75,7 @@ ffmpeg -skip_frame nokey -i input.mp4 \
 ```bash
 ffmpeg -i input.mp4 \
   -vf "select='gt(scene,0.3)',scale=320:180,tile=4x3" \
-  -vsync vfr \
+  -fps_mode vfr \
   -frames:v 1 \
   scenes.jpg
 ```
@@ -86,7 +86,7 @@ ffmpeg -i input.mp4 \
 # At least 5 seconds between scenes
 ffmpeg -i input.mp4 \
   -vf "select='gt(scene,0.4)*isnan(prev_selected_t)+gte(t-prev_selected_t,5)*gt(scene,0.4)',scale=320:180,tile=4x3" \
-  -vsync vfr \
+  -fps_mode vfr \
   -frames:v 1 \
   scenes.jpg
 ```
@@ -153,11 +153,11 @@ ffmpeg -i input.mp4 \
 ### Limit Total Frames
 
 ```bash
-# Maximum 20 frames across all sheets
+# Select at most 20 source thumbnails, then emit one 5x4 sheet
 ffmpeg -i input.mp4 \
-  -vf "fps=1/10,scale=240:135,tile=5x4" \
-  -frames:v 20 \
-  storyboard_%02d.jpg
+  -vf "fps=1/10,select='lt(n,20)',scale=240:135,tile=5x4" \
+  -frames:v 1 \
+  storyboard.jpg
 ```
 
 ## Video Sprites
@@ -184,38 +184,17 @@ ffmpeg -i input.mp4 \
 
 ### With Metadata (VTT)
 
-Generate sprite and timestamp file:
+Use the checked-in helper to generate fixed 10x10 sprite pages and a WebVTT
+manifest:
 
 ```bash
-#!/bin/bash
-# Generate sprite and VTT for video player
-
-video=$1
-interval=2  # seconds
-width=160
-height=90
-cols=10
-
-# Generate sprite
-ffmpeg -i "$video" -vf "fps=1/$interval,scale=$width:$height,tile=${cols}x1" -frames:v 1 sprite.jpg
-
-# Generate VTT
-duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$video")
-echo "WEBVTT" > thumbnails.vtt
-echo "" >> thumbnails.vtt
-
-frames=$(echo "$duration / $interval" | bc)
-for ((i=0; i<frames; i++)); do
-  start=$(printf "%02d:%02d:%02d.000" $((i*interval/3600)) $((i*interval%3600/60)) $((i*interval%60)))
-  end=$(printf "%02d:%02d:%02d.000" $(((i+1)*interval/3600)) $(((i+1)*interval%3600/60)) $(((i+1)*interval%60)))
-  x=$((i % cols * width))
-  y=$((i / cols * height))
-
-  echo "$start --> $end" >> thumbnails.vtt
-  echo "sprite.jpg#xywh=$x,$y,$width,$height" >> thumbnails.vtt
-  echo "" >> thumbnails.vtt
-done
+scripts/generate-sprite-vtt.sh input.mp4 preview-sprites
 ```
+
+The helper probes duration, clamps the final cue, writes additional sprite
+pages after 100 thumbnails, and ensures every `xywh` rectangle stays within its
+referenced 1600x900 page. Its pagination and geometry are covered by the
+semantic smoke test.
 
 ## Chapter-Based Storyboards
 

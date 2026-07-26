@@ -9,7 +9,7 @@ Change playback speed, create slow motion, time-lapse, and reverse video.
 ```bash
 # 2x speed (half duration)
 ffmpeg -i input.mp4 \
-  -filter_complex "[0:v]setpts=0.5*PTS[v];[0:a]atempo=2.0[a]" \
+  -filter_complex "[0:v]setpts=(PTS-STARTPTS)/2[v];[0:a]atempo=2.0[a]" \
   -map "[v]" -map "[a]" output.mp4
 ```
 
@@ -25,7 +25,7 @@ ffmpeg -i input.mp4 \
 # Speed up video only, drop audio
 ffmpeg -i input.mp4 -vf "setpts=0.5*PTS" -an output.mp4
 
-# Speed up video, keep audio at original speed (truncated)
+# Intentional effect: speed up video while leaving audio unchanged, then truncate
 ffmpeg -i input.mp4 -vf "setpts=0.5*PTS" -c:a copy -shortest output.mp4
 ```
 
@@ -125,9 +125,14 @@ ffmpeg -framerate 30 -pattern_type glob -i '*.jpg' \
 ### From High Frame Rate Source
 
 ```bash
-# 120fps to 30fps time-lapse (4x speed)
-ffmpeg -i highfps.mp4 -vf "fps=30" -an timelapse.mp4
+# Compress timestamps by 4, then emit a 30 fps CFR output
+ffmpeg -i highfps.mp4 \
+  -vf "setpts=(PTS-STARTPTS)/4,fps=30" \
+  -fps_mode cfr -an timelapse.mp4
 ```
+
+The `fps` filter alone drops or duplicates frames while normally preserving the
+timeline. Timestamp compression is what makes this example four times faster.
 
 ## Reverse Video
 
@@ -166,15 +171,24 @@ ffmpeg -f concat -safe 0 -i list.txt -c copy reversed.mp4
 
 ## Variable Speed (Ramp)
 
-### Speed Ramp Up
+### Two Tested Speed Segments
 
 ```bash
-# Start slow, speed up over time
+# First five source seconds at 0.5x, then the remainder at 2x
 ffmpeg -i input.mp4 \
-  -vf "setpts='if(lt(T,5),2*PTS,PTS-5+5/2)'" \
-  -af "atempo='if(lt(t,5),0.5,2)':eval=frame" \
-  output.mp4
+  -filter_complex \
+    "[0:v]trim=start=0:end=5,setpts=2*(PTS-STARTPTS)[v0]; \
+     [0:a]atrim=start=0:end=5,asetpts=PTS-STARTPTS,atempo=0.5[a0]; \
+     [0:v]trim=start=5,setpts=0.5*(PTS-STARTPTS)[v1]; \
+     [0:a]atrim=start=5,asetpts=PTS-STARTPTS,atempo=2.0[a1]; \
+     [v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]" \
+  -map "[v]" -map "[a]" output.mp4
 ```
+
+`atempo` accepts a scalar tempo, not the time-varying expression used by many
+older examples. Segment both video and audio, retime each segment, then join
+them. A continuous ramp needs a filter that explicitly supports automation,
+such as a build-dependent external filter.
 
 ### Speed Ramp Down
 
@@ -308,5 +322,5 @@ Process in smaller segments for long videos.
 
 ## Next Steps
 
-- [Complex Filters](complex-filters.md) - Combine with other effects
+- [Filters](../fundamentals/filters.md) - Combine and label filter graphs
 - [Automation](../automation/batch.md) - Process multiple files

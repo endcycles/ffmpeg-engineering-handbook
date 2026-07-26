@@ -405,4 +405,4 @@ ffmpeg -i input.mp4 -filter_complex "..." -f null - 2>&1 | grep "filtergraph"
 ## Next Steps
 
 - [Overlays & Compositing](../advanced/overlays.md) - Deep dive into overlay techniques
-- [Complex Filters](../advanced/complex-filters.md) - Advanced filter graph patterns
+- [Command Anatomy](command-anatomy.md) - Mapping complex-filter outputs

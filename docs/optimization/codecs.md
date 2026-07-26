@@ -266,5 +266,5 @@ ffmpeg -encoders | grep nvenc
 
 ## Next Steps
 
-- [Bitrate Control](bitrate.md) - CRF vs CBR vs VBR
+- [Command Anatomy](../fundamentals/command-anatomy.md) - Per-stream rate-control options
 - [Hardware Acceleration](hardware.md) - GPU encoding

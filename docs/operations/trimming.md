@@ -228,15 +228,20 @@ The output may be slightly longer/shorter than requested when copying.
 ### 2. Audio/video sync after trim
 
 ```bash
-# Force sync reset
-ffmpeg -i input.mp4 -ss 10 -t 30 -async 1 output.mp4
+# Reset both filtered timelines for an intentional 30-second transcode
+ffmpeg -ss 10 -t 30 -i input.mp4 \
+  -vf "setpts=PTS-STARTPTS" \
+  -af "asetpts=PTS-STARTPTS" \
+  -c:v libx264 -c:a aac output.mp4
 ```
 
 ### 3. Timestamp gaps
 
 After trimming, timestamps may not start at 0.
 
-**Solution**: Always reset with `setpts=PTS-STARTPTS`.
+Reset with `setpts=PTS-STARTPTS` only when the output is meant to start at zero.
+Preserving source timestamps may be intentional in broadcast, segmented, or
+multi-input workflows.
 
 ### 4. Concat after trim fails
 

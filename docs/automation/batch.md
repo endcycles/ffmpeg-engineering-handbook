@@ -279,5 +279,5 @@ find . -name "*.avi" | parallel -j2 'ffmpeg -y -i {} -c:v h264_nvenc -cq 23 {.}.
 
 ## Next Steps
 
-- [Shell Scripts](scripts.md) - Reusable script patterns
-- [Pipeline Patterns](pipelines.md) - Complex workflows
+- [Command Anatomy](../fundamentals/command-anatomy.md) - Safe option and output scoping
+- [Troubleshooting](../troubleshooting/errors.md) - Reproducible diagnostics

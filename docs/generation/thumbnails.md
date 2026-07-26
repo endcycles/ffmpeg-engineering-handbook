@@ -85,7 +85,7 @@ ffmpeg -i input.mp4 \
 # Sensitivity: 0 (most sensitive) to 1 (least)
 ffmpeg -i input.mp4 \
   -vf "select='gt(scene,0.4)'" \
-  -vsync vfr \
+  -fps_mode vfr \
   -q:v 2 \
   scene_%04d.jpg
 ```
@@ -105,7 +105,7 @@ ffmpeg -i input.mp4 \
 # Maximum 20 scene thumbnails
 ffmpeg -i input.mp4 \
   -vf "select='gt(scene,0.4)'" \
-  -vsync vfr \
+  -fps_mode vfr \
   -frames:v 20 \
   scene_%02d.jpg
 ```
@@ -117,12 +117,12 @@ ffmpeg -i input.mp4 \
 ```bash
 # I-frames only (fast, no decoding of other frames)
 ffmpeg -skip_frame nokey -i input.mp4 \
-  -vsync 0 \
+  -fps_mode passthrough \
   keyframe_%04d.jpg
 
 # With quality
 ffmpeg -skip_frame nokey -i input.mp4 \
-  -vsync 0 -q:v 2 \
+  -fps_mode passthrough -q:v 2 \
   keyframe_%04d.jpg
 ```
 
@@ -145,7 +145,7 @@ ffmpeg -ss 00:00:30 -i input.mp4 -t 60 \
 # One "best" frame per 100 frames
 ffmpeg -i input.mp4 \
   -vf "thumbnail=100" \
-  -vsync 0 \
+  -fps_mode passthrough \
   thumb_%04d.jpg
 ```
 

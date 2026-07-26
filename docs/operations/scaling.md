@@ -312,4 +312,4 @@ Use `-2` for auto-dimension: `scale=1920:-2`
 ## Next Steps
 
 - [Concatenation](concatenation.md) - Join scaled videos
-- [Social Media Crops](../advanced/social-crops.md) - Platform-specific formatting
+- [Overlays](../advanced/overlays.md) - Compose scaled and cropped video

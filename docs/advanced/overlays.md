@@ -324,4 +324,4 @@ ffmpeg -i video.mp4 -i large.png -i small.png \
 ## Next Steps
 
 - [Text & Subtitles](subtitles.md) - Text overlays and captions
-- [Complex Filters](complex-filters.md) - Advanced compositions
+- [Filters](../fundamentals/filters.md) - Advanced filter-graph patterns

@@ -223,15 +223,17 @@ Could not find tag for codec h264 in stream #0
 ### 3. Audio/Video Sync Issues
 
 ```bash
-# Re-encode with timestamp correction
-ffmpeg -i input.avi -c:v libx264 -c:a aac -async 1 output.mp4
+# Resample audio only after confirming audio timestamps drift from the master clock
+ffmpeg -i input.avi -c:v libx264 \
+  -af "aresample=async=1:first_pts=0" -c:a aac output.mp4
 ```
 
 ### 4. Variable Frame Rate to Constant
 
 ```bash
 # Convert VFR to CFR
-ffmpeg -i input.mp4 -c:v libx264 -vsync cfr -r 30 output.mp4
+ffmpeg -i input.mp4 -vf "fps=30" -fps_mode cfr \
+  -c:v libx264 -c:a copy output.mp4
 ```
 
 ## Next Steps

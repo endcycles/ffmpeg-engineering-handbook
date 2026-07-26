@@ -266,11 +266,22 @@ ffmpeg -stream_loop 4 -i slideshow.mp4 -c copy slideshow_5x.mp4
 Add crossfade between end and start:
 
 ```bash
-# With xfade at loop point
+# Bash: probe the duration and inject numeric trim/xfade times
+duration=$(ffprobe -v error -show_entries format=duration \
+  -of default=noprint_wrappers=1:nokey=1 slideshow.mp4)
+body_end=$(awk -v d="$duration" 'BEGIN { printf "%.6f", d - 0.5 }')
+fade_at=$(awk -v d="$duration" 'BEGIN { printf "%.6f", d - 1.0 }')
+
 ffmpeg -i slideshow.mp4 \
-  -filter_complex "[0:v]split[main][end];[end]trim=0:1,setpts=PTS-STARTPTS[endclip];[main]trim=1,setpts=PTS-STARTPTS[mainclip];[mainclip][endclip]xfade=transition=fade:duration=0.5:offset=duration-0.5" \
-  looping.mp4
+  -filter_complex \
+    "[0:v]trim=start=0:end=${body_end},setpts=PTS-STARTPTS,fps=30,format=yuv420p[body]; \
+     [0:v]trim=start=0:end=0.5,setpts=PTS-STARTPTS,fps=30,format=yuv420p[head]; \
+     [body][head]xfade=transition=fade:duration=0.5:offset=${fade_at}[v]" \
+  -map "[v]" -an -c:v libx264 -fps_mode cfr looping.mp4
 ```
+
+This video-only example shortens the source by 0.5 seconds. Handle audio with a
+matching `acrossfade` graph when the loop must include sound.
 
 ## Script for Complex Slideshows
 

@@ -180,11 +180,9 @@ Safe to ignore in most cases.
 ### Audio/Video Sync Issues
 
 ```bash
-# Reset timestamps
-ffmpeg -i input.mp4 -async 1 -c:v libx264 -c:a aac output.mp4
-
-# Or use audio filter
-ffmpeg -i input.mp4 -af "aresample=async=1" -c:v copy output.mp4
+# If probing confirms audio-clock drift, resample audio to close timestamp gaps
+ffmpeg -i input.mp4 -af "aresample=async=1:first_pts=0" \
+  -c:v libx264 -c:a aac output.mp4
 ```
 
 ## Size/Memory Errors
@@ -332,11 +330,11 @@ ffprobe -v quiet -print_format json -show_format -show_streams input.mp4
 | "No such filter" | Check `ffmpeg -filters` |
 | "Permission denied" | Check file/directory permissions |
 | Black frames | Re-encode instead of copy |
-| Sync issues | Use `-async 1` |
-| Timestamp issues | Use `-fflags +genpts` |
+| Sync issues | Inspect audio/video timestamps, then choose the correct clock and correction |
+| Timestamp issues | Probe packet timestamps before changing or generating them |
 | Memory issues | Reduce resolution first |
 
 ## Next Steps
 
-- [Debugging](debugging.md) - Advanced debugging techniques
-- [Compatibility](compatibility.md) - Cross-platform issues
+- [Command Anatomy](../fundamentals/command-anatomy.md) - Option scope and diagnostics
+- [Conversion](../operations/conversion.md) - Container and codec decisions

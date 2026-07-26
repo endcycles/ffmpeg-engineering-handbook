@@ -25,12 +25,17 @@ ffmpeg  -y  -ss 10  -i input.mp4  -t 30 -c:v libx264  output.mp4
 The position of options relative to `-i` changes their meaning:
 
 ```bash
-# Input option: seek in input BEFORE decoding (fast, keyframe-based)
+# Input-side seek: lets the demuxer seek before decoding
 ffmpeg -ss 10 -i input.mp4 output.mp4
 
-# Output option: seek AFTER decoding (slow, frame-accurate)
+# Output-side seek: discards decoded output until the requested timestamp
 ffmpeg -i input.mp4 -ss 10 output.mp4
 ```
+
+During transcoding, input-side `-ss` normally performs accurate seeking by
+decoding and discarding pre-roll after the demuxer seek. With stream copy, the
+start is constrained by packet and keyframe boundaries. Validate timestamps
+when exact cuts matter.
 
 ## Global Options
 
@@ -144,17 +149,19 @@ Control which streams go to output:
 # Default: FFmpeg picks "best" streams automatically
 
 # Explicit mapping
+# Video from the first input; audio from the second input
 ffmpeg -i video.mp4 -i audio.mp3 \
-  -map 0:v \       # Video from first input
-  -map 1:a \       # Audio from second input
+  -map 0:v:0 \
+  -map 1:a:0 \
   output.mp4
 
 # Multiple streams
+# First video, two audio streams, and an optional first subtitle
 ffmpeg -i input.mkv \
-  -map 0:v:0 \     # First video
-  -map 0:a:0 \     # First audio
-  -map 0:a:1 \     # Second audio
-  -map 0:s:0 \     # First subtitle
+  -map 0:v:0 \
+  -map 0:a:0 \
+  -map 0:a:1 \
+  -map 0:s:0? \
   output.mkv
 ```
 

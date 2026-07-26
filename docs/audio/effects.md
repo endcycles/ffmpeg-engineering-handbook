@@ -64,9 +64,17 @@ ffmpeg -i input.mp3 -af "afade=t=in:d=1,afade=t=out:st=29:d=1" output.mp3
 ### Peak Normalization
 
 ```bash
-# Normalize to -3dB peak
-ffmpeg -i input.mp3 -af "volume=replaygain" output.mp3
+# Pass 1: measure the sample peak (read max_volume from the final lines)
+ffmpeg -i input.mp3 -af volumedetect -f null -
+
+# Pass 2 example: max_volume was -8 dB, so add 5 dB to target -3 dB
+ffmpeg -i input.mp3 -af "volume=5dB" output.mp3
 ```
+
+This is sample-peak normalization. It is not loudness or true-peak
+normalization. If the input carries ReplayGain side data, the separate
+`volume=replaygain=track` option can apply it, but that does not measure the
+audio.
 
 ### Dynamic Range Normalization
 
@@ -86,7 +94,8 @@ ffmpeg -i input.mp3 -af "dynaudnorm=f=150:g=15:p=0.95" output.mp3
 
 ### EBU R128 Loudness Normalization
 
-Two-pass for broadcast-compliant audio:
+Two-pass example for a delivery target of -16 LUFS integrated and -1.5 dBTP.
+Use the values required by your delivery specification:
 
 ```bash
 # Pass 1: Analyze
@@ -198,13 +207,13 @@ ffmpeg -i input.mp3 -af "highpass=f=60,lowpass=f=15000" output.mp3
 
 ## Speed and Pitch
 
-### Change Speed (Affects Pitch)
+### Change Tempo (Preserves Pitch)
 
 ```bash
-# 2x speed (also raises pitch)
+# 2x tempo
 ffmpeg -i input.mp3 -af "atempo=2.0" output.mp3
 
-# 0.5x speed (also lowers pitch)
+# 0.5x tempo
 ffmpeg -i input.mp3 -af "atempo=0.5" output.mp3
 ```
 
@@ -215,7 +224,7 @@ ffmpeg -i input.mp3 -af "atempo=0.5" output.mp3
 ffmpeg -i input.mp3 -af "atempo=2.0,atempo=2.0" output.mp3
 ```
 
-### Change Speed (Preserve Pitch)
+### Higher-Quality Tempo Processing (Build-Dependent)
 
 ```bash
 # Using rubberband filter (if available)
@@ -360,4 +369,4 @@ ffmpeg -i input.mp3 -filter_complex "showspectrumpic=s=640x480" spectrogram.png
 ## Next Steps
 
 - [Surround Sound](surround.md) - Multi-channel audio
-- [Loudness & Standards](../optimization/web.md) - Broadcast compliance
+- [Audio Extraction](extraction.md) - Measured extraction workflows

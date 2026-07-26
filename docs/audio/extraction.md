@@ -196,9 +196,15 @@ ffmpeg -i video.mp4 -vn \
 # Dynamic audio normalization
 ffmpeg -i video.mp4 -vn -af "dynaudnorm" -c:a libmp3lame audio.mp3
 
-# Peak normalization
-ffmpeg -i video.mp4 -vn -af "volume=0dB" -c:a libmp3lame audio.mp3
+# Measure the sample peak before choosing a gain
+ffmpeg -i video.mp4 -map 0:a:0 -af volumedetect -f null -
+
+# Example: measured max_volume=-8 dB; add 5 dB for a -3 dB sample peak
+ffmpeg -i video.mp4 -map 0:a:0 -vn \
+  -af "volume=5dB" -c:a libmp3lame audio.mp3
 ```
+
+Measure again after encoding. Lossy encoding can change sample and true peaks.
 
 ## Preserve Metadata
 
