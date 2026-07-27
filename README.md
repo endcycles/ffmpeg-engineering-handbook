@@ -105,16 +105,8 @@ not create HLS, DASH, or another adaptive-streaming package.
   output duration, topology, sync, color, loudness, or geometry is correct.
 - Do not run untrusted media or paths through shell-concatenated commands.
 
-Repository checks live under [`scripts/`](scripts/) and run in CI. The complete
-modernization backlog and evidence are recorded in the
+The complete FFmpeg modernization backlog and supporting evidence are recorded in the
 [repository update report](ffmpeg-engineering-handbook-update-report.md).
-
-## Contributing and security
-
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing a recipe. Report a
-security problem according to [SECURITY.md](SECURITY.md), not in a public issue.
-Behavior changes and corrected recipes are recorded in
-[CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
